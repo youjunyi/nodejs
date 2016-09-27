@@ -7,7 +7,7 @@
 	dc = d.compatMode == 'CSS1Compat',
 	dx = dc ? dd: db,
 	ec = encodeURIComponent;
-	
+
 	
 	w.CHAT = {
 		msgObj:d.getElementById("message"),
@@ -24,6 +24,40 @@
 			//this.socket.disconnect();
 			location.reload();
 		},
+		dddfs:function dddfs(id,counent){
+			var counents = $("#"+counent).val();
+			var obj = {
+				userid: this.userid,
+				username: this.username,
+				content: counents,
+				touserid:id
+			};
+			this.socket.emit('message', obj);
+			var doc = d.getElementById("docddd");
+			var contentDiv = '<div>' + obj.content + '</div>';
+			var usernameDiv = '<span>' + obj.username + '</span>';
+			var section = d.createElement('section');
+			section.className = 'user';
+			section.innerHTML = contentDiv + usernameDiv;
+			d.getElementById("messageddd").appendChild(section);
+			d.getElementById("messageddd").scrollToBottom();
+		},
+		hui:function hui(obj){
+
+			var ids = obj.id;
+			layer.open({
+				type: 1, //page层
+				area: ['500px', '300px'],
+				title: '你好，layer。',
+				shade: 0.6, //遮罩透明度
+				moveType: 1, //拖拽风格，0是默认，1是传统拖动
+				shift: 1, //0-6的动画形式，-1不开启
+				content: " <div id=\"docddd\"> <div id=\"chatddd\"> <div id=\"messageddd\" class=\"message\"> <div id=\"onlinecountddd\" style=\"background:#EFEFF4; font-size:12px; margin-top:10px; margin-left:10px; color:#666;\"> </div>"+
+				"</div><div> <div class=\"input\">"+
+				"<input type=\"text\" maxlength=\"140\" placeholder=\"请输入聊天内容，按Ctrl提交\" id=\"contentddd\" name=\"content\">"+
+				"</div> <div class=\"action\"> <button type=\"button\" id=\"mjr_send\" onclick=\"CHAT.dddfs('"+ids+"','contentddd');\">提交</button> </div> </div></div> </div>"
+			});
+		},
 		//提交聊天消息内容
 		submit:function(){
 			var content = d.getElementById("content").value;
@@ -33,7 +67,7 @@
 					username: this.username,
 					content: content
 				};
-				this.socket.emit('message', obj);
+				this.socket.emit('allmessage', obj);
 				d.getElementById("content").value = '';
 			}
 			return false;
@@ -55,7 +89,7 @@
 			var separator = '';
 			for(key in onlineUsers) {
 		        if(onlineUsers.hasOwnProperty(key)){
-					userhtml += separator+onlineUsers[key];
+					userhtml += "<a href='#' onclick='CHAT.hui(this);' id='"+key+"'>"+separator+onlineUsers[key]+"</a>";
 					separator = '、';
 				}
 		    }
@@ -97,7 +131,7 @@
 			this.scrollToBottom();
 			
 			//连接websocket后端服务器
-			this.socket = io.connect('ws://realtime.plhwin.com');
+			this.socket = io.connect('ws://192.168.200.18:3000');
 			
 			//告诉服务器端有用户登录
 			this.socket.emit('login', {userid:this.userid, username:this.username});
@@ -111,8 +145,42 @@
 			this.socket.on('logout', function(o){
 				CHAT.updateSysMsg(o, 'logout');
 			});
-			
-			//监听消息发送
+			//监听单用户消息
+			this.socket.on('dddmessage',function(obj){
+				var doc = d.getElementById("docddd");
+				if(doc) {
+					var isme = (obj.userid == CHAT.userid) ? true : false;
+					var contentDiv = '<div>' + obj.content + '</div>';
+					var usernameDiv = '<span>' + obj.username + '</span>';
+					var section = d.createElement('section');
+					if (isme) {
+						section.className = 'user';
+						section.innerHTML = contentDiv + usernameDiv;
+					} else {
+						section.className = 'service';
+						section.innerHTML = usernameDiv + contentDiv;
+					}
+					d.getElementById("messageddd").appendChild(section);
+					d.getElementById("messageddd").scrollToBottom();
+				}else{
+					layer.msg( obj.username+'对你说：'+obj.content,{
+							icon:1,
+							time:0,
+							closeBtn:1,
+							shift:6,
+						btn:['查看'],
+							btn1:function(index, layero){
+								var obj1 = {
+										id:obj.userid
+								}
+								CHAT.hui(obj1);
+							}
+					}, function(){
+
+					});
+				}
+			})
+			//监听消息多用户发送
 			this.socket.on('message', function(obj){
 				var isme = (obj.userid == CHAT.userid) ? true : false;
 				var contentDiv = '<div>'+obj.content+'</div>';
@@ -127,7 +195,7 @@
 					section.innerHTML = usernameDiv + contentDiv;
 				}
 				CHAT.msgObj.appendChild(section);
-				CHAT.scrollToBottom();	
+				CHAT.scrollToBottom();
 			});
 
 		}
@@ -146,4 +214,5 @@
 			CHAT.submit();
 		}
 	};
+
 })();

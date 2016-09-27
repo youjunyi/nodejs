@@ -68,6 +68,7 @@ app.use('/reg',reg);
 app.use('/doreg',reg);
 app.use('/login',login);
 app.get('/loginout',login);
+app.get('/webs',login);
 
 
 

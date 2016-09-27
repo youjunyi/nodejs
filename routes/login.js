@@ -32,4 +32,8 @@ router.get('/loginout',function(req, res){
     req.session.success="退出成功";
     return res.redirect('/');
 })
+
+router.get('/webs',function(req,res){
+    res.render('webs')
+})
 module.exports = router;
