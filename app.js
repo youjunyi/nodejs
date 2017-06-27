@@ -25,25 +25,25 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
+/*app.use(session({
   secret: settings.cookieSecret,
   key: settings.db,//cookie name
   cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
   resave: false,
   saveUninitialized: true,
   store: new MongoStore({
-    /*db: settings.db,
+    /!*db: settings.db,
      host: settings.host,
-     port: settings.port*/
+     port: settings.port*!/
     url: 'mongodb://localhost/blog'
   })
 
-}))
+}))*/
 //设置默认模版路径
 app.locals._layoutFile='layout'
 //创建中间件
 app.use(function(req, res, next){
-  var err =  req.session.error;
+ /* var err =  req.session.error;
   var msg =  req.session.success;
   //删除会话中原有属性
   delete req.session.error;
@@ -51,13 +51,13 @@ app.use(function(req, res, next){
   //将错误和正确信息存放到动态试图助手变量中。
   res.locals.message = '';
   if (err) res.locals.message = '<div class="alert alert-error">' + err + '</div>';
-  if (msg) res.locals.message = '<div class="alert alert-success">' + msg + '</div>';
+  if (msg) res.locals.message = '<div class="alert alert-success">' + msg + '</div>';*/
   next();
 
 });
 //使用中间件把user设置成动态视图助手
 app.use(function(req, res, next){
-  res.locals.user = req.session.user;
+  //res.locals.user = req.session.user;
   next();
 })
 //设置程序路由
